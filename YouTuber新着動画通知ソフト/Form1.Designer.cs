@@ -186,6 +186,9 @@
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.label1);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.MaximumSize = new System.Drawing.Size(815, 489);
+            this.MinimumSize = new System.Drawing.Size(815, 489);
             this.Name = "Form1";
             this.Text = "YouTuber新着動画通知ソフトウェア Ver1.6.3";
             this.Load += new System.EventHandler(this.Form1_Load);

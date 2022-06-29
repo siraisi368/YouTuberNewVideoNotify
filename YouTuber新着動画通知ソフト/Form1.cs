@@ -35,6 +35,7 @@ namespace YouTuber新着動画通知ソフト
 
         private async void Form1_Load(object sender, EventArgs e)
         {
+            this.MaximizeBox = false;
             string error = null;
             string error2 = null;
             FileStream fs = new FileStream(@"settings\settings.json", FileMode.Open, FileAccess.Read, FileShare.ReadWrite);

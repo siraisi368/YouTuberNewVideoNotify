@@ -128,6 +128,7 @@
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
             this.Name = "Form2";
             this.Text = "YouTuber新着動画通知ソフトウェア Ver1.6.3 設定画面";
             this.Load += new System.EventHandler(this.Form2_Load);
