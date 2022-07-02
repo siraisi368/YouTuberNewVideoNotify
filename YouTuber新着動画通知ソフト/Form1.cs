@@ -31,7 +31,7 @@ namespace YouTuber新着動画通知ソフト
         public class set { public string ch_id { get; set; } public bool is_name { get; set; } public string api_key { get; set; } }
 
         private readonly WebClient downloadClient = new WebClient();
-        private readonly HttpClient client = new HttpClient();
+        private readonly HttpClient client = new HttpClient(); 
 
         private async void Form1_Load(object sender, EventArgs e)
         {
