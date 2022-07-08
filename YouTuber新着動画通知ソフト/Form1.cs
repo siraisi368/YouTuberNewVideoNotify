@@ -23,6 +23,7 @@ namespace YouTuber新着動画通知ソフト
             public static string new_video_link;
             public static string new_video_title;
             public static string new_video_sumpic;
+            public static string new_video_description;
             public static string ch_id;
             public static bool is_name;
             public static string api_key;
@@ -82,6 +83,8 @@ namespace YouTuber新着動画通知ソフト
                 //---------YT Xml Feed取得部分 終---------//
 
                 //data = YouTubeXMLFeedくん//
+                //---------YouTubeXML Feedデータ処理部---------//
+                //変数代入部
                 global.user_name = data.feed.title;
                 global.new_video_title = data.feed.entry[0].title;
                 global.new_video_link = data.feed.entry[0].link.Href;
@@ -89,12 +92,16 @@ namespace YouTuber新着動画通知ソフト
                 var new_video_description = data.feed.entry[0].MediaGroup.MediaDescription;
                 var update_time = data.feed.entry[0].updated;
 
+                //チャンネル名・最終更新時刻の表示
                 ch_name.Text = "現在設定中のチャンネル名:" + global.user_name;
                 label3.Text = "最終更新:" + update_time;
 
+                //動画タイトル・概要欄の表示
                 textBox1.Text = global.new_video_title;
                 textBox2.Text = new_video_description;
+                global.new_video_description = new_video_description;
 
+                //フォルダパスの指定
                 string name = System.IO.Path.GetTempPath();
                 string path = $@"{name}youtuberNotify\img\";
 
@@ -104,6 +111,7 @@ namespace YouTuber新着動画通知ソフト
                     DirectoryInfo di = new DirectoryInfo(path);
                     di.Create();
                 }
+
                 //サムネイルダウンロード
                 string file = $@"{name}youtuberNotify\img\samune.png";
                 Uri u = new Uri(global.new_video_sumpic);
@@ -164,37 +172,50 @@ namespace YouTuber新着動画通知ソフト
             downloadClient.DownloadFile(u, file);
         }
 
-        private async void label3_TextChanged(object sender, EventArgs e)
+        private async void label3_TextChanged(object sender, EventArgs e)//時刻テキストの変更
         {
-            
             string name = Path.GetTempPath();
-            if (global.new_video_title == textBox1.Text)
-            {
-                await Task.Delay(3000);
-                new ToastContentBuilder()
-                        .AddArgument("action", "viewConversation")
-                        .AddArgument("conversationId", 9813)
-                        .AddText(global.user_name + "が動画内容を更新しました")
-                        .AddText(global.new_video_title)
-                        .AddHeroImage(new Uri($@"file:///{name}youtuberNotify/img/samune.png"))
-                        .AddAppLogoOverride(new Uri($@"file:///{name}youtuberNotify/img/icon.png"))
-                        .Show();
-                ToastNotificationManagerCompat.OnActivated += this.ToastNotificationManagerCompat_OnActivated;
+            if (global.new_video_description == textBox2.Text)//概要欄の比較
+            {//True
+
+                if(global.new_video_title == textBox1.Text)//タイトルの比較
+                {//True
+                    return;//もどる
+                }
+                else if (global.new_video_title != textBox1.Text)//概要欄＝ ＆ タイトル≠
+                {//False
+                    new ToastContentBuilder()
+                            .AddArgument("action", "viewConversation")
+                            .AddArgument("conversationId", 9813)
+                            .AddText(global.user_name + "が動画内容を更新しました")
+                            .AddText(global.new_video_title)
+                            .AddHeroImage(new Uri($@"file:///{name}youtuberNotify/img/samune.png"))
+                            .AddAppLogoOverride(new Uri($@"file:///{name}youtuberNotify/img/icon.png"))
+                            .Show();
+                    ToastNotificationManagerCompat.OnActivated += this.ToastNotificationManagerCompat_OnActivated;
+                }
             }
             else
-            {
-                await Task.Delay(3000);
-                new ToastContentBuilder()
-                        .AddArgument("action", "viewConversation")
-                        .AddArgument("conversationId", 9813)
-                        .AddText(global.user_name + "の新着動画")
-                        .AddText(global.new_video_title)
-                        .AddHeroImage(new Uri($@"file:///{name}youtuberNotify/img/samune.png"))
-                        .AddAppLogoOverride(new Uri($@"file:///{name}youtuberNotify/img/icon.png"), ToastGenericAppLogoCrop.Circle)
-                        .AddButton(new ToastButton("動画をブラウザで開く","openWeb"))
-                        .AddButton(new ToastButton("キャンセル", "cancel"))
-                        .Show();
-                ToastNotificationManagerCompat.OnActivated += this.ToastNotificationManagerCompat_OnActivated;
+            {//False
+                if(global.new_video_title != textBox1.Text)//タイトル比較
+                {
+                    await Task.Delay(3000);
+                    new ToastContentBuilder()
+                            .AddArgument("action", "viewConversation")
+                            .AddArgument("conversationId", 9813)
+                            .AddText(global.user_name + "の新着動画")
+                            .AddText(global.new_video_title)
+                            .AddHeroImage(new Uri($@"file:///{name}youtuberNotify/img/samune.png"))
+                            .AddAppLogoOverride(new Uri($@"file:///{name}youtuberNotify/img/icon.png"), ToastGenericAppLogoCrop.Circle)
+                            .AddButton(new ToastButton("動画をブラウザで開く","openWeb"))
+                            .AddButton(new ToastButton("キャンセル", "cancel"))
+                            .Show();
+                    ToastNotificationManagerCompat.OnActivated += this.ToastNotificationManagerCompat_OnActivated;
+                }
+                else if (global.new_video_title == textBox1.Text)
+                {
+
+                }
             }
         }
 
@@ -202,9 +223,10 @@ namespace YouTuber新着動画通知ソフト
         {
             // e.Argument で押されたボタンを確認
             var arg = e.Argument;
+            //キャンセル時
             if (arg == "cancel") return;
-
-            System.Diagnostics.Process.Start(global.new_video_link);
+            //「開く」ボタン時
+            if (arg == "openWeb") System.Diagnostics.Process.Start(global.new_video_link);
         }
 
         private void linkLabel2_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
